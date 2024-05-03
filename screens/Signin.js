@@ -17,8 +17,8 @@ import {
 import { Alert } from "react-native";
 
 const Signin = ({ navigation }) => {
-  const [email, setEmail] = useState("khalil@live.fr");
-  const [password, setpassword] = useState("111");
+  const [email, setEmail] = useState("omar@live.fr");
+  const [password, setpassword] = useState("1111");
   // const { toggleColorMode } = useColorMode();
 
   const Admin = {

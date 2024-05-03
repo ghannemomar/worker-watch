@@ -1,14 +1,30 @@
 import { HStack, Icon, Pressable, Text, View } from "native-base";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dimensions, Image, Linking, ScrollView, StyleSheet } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { Fontisto } from "@expo/vector-icons";
 import { mapStyle } from "../utils/mapStyle";
 import { Ionicons } from "@expo/vector-icons";
+import * as Location from 'expo-location';
 
 const HomeUser = ({ navigation }) => {
   
+
+  useEffect(() => {
+    (async () => {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      console.log('location is : ',location)
+    })();
+  }, []);
+
   const user = {
     id:'2',
     firstname: "Khalil",
