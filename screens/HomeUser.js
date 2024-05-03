@@ -11,6 +11,7 @@ import * as Location from 'expo-location';
 const HomeUser = ({ navigation }) => {
   
   console.log('aaa')
+  console.log('bb')
 
   useEffect(() => {
     (async () => {
