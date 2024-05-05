@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -6,150 +6,189 @@ import {
   FormControl,
   HStack,
   Heading,
-  IconButton,
+  Icon,
   Input,
   Link,
+  Spinner,
   Text,
   VStack,
   View,
-  
+  useToast,
 } from "native-base";
-import { Alert } from "react-native";
+import { Keyboard } from "react-native";
+import axios from "axios";
+import ToastComponent from "../components/ToastComponent";
+import { URL } from "../utils/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Signin = ({ navigation }) => {
   const [email, setEmail] = useState("omar@live.fr");
-  const [password, setpassword] = useState("1111");
-  // const { toggleColorMode } = useColorMode();
+  const [password, setpassword] = useState("123456");
+  const [loader, setLoader] = useState(false);
+  const [checkUserLoader, setCheckUserLoader] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const toast = useToast();
 
-  const Admin = {
-    firstname: "khalil",
-    role: "admin",
-    password: "111",
-    email: "khalil@live.fr",
-    lastname: "chikhaoui",
-  };
-  const User = {
-    firstname: "omar",
-    role: "User",
-    password: "1111",
-    email: "omar@live.fr",
-    lastname: "ghannem",
-  };
-
-  const loginHandler = () => {
-    if (email.toLowerCase().trim() == Admin.email && password == Admin.password) {
-     
-        navigation.navigate("DrawerNavigator");
-      
-    } 
-    else if (email.toLowerCase().trim() == User.email && password == User.password) {
-     
-    navigation.navigate("HomeUser");
-      
-    } else {
-      Alert.alert("la2", "ghalet");
+  const loginHandler = async () => {
+    if (!loader) {
+      Keyboard.dismiss();
+      toast.closeAll();
+      setLoader(true);
+      axios
+        .post(`${URL}/users/signin`, {
+          email: email.trim().toLocaleLowerCase(),
+          password,
+        })
+        .then(async (res) => {
+          console.log("rep is :", res.data);
+          setLoader(false);
+          const user = res.data;
+          const userAsString = JSON.stringify(user);
+          await AsyncStorage.setItem("user", userAsString);
+          if (user.role == "admin") {
+            navigation.replace("DrawerNavigator");
+          } else {
+            navigation.replace("HomeUser");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoader(false);
+          toast.show({
+            placement: "bottom",
+            duration: 2000,
+            render: ({ id }) => {
+              return (
+                <ToastComponent
+                  id={id}
+                  closeHandler={() => toast.close(id)}
+                  title="Something went wrong"
+                  description="Please verify your Login Credentials"
+                />
+              );
+            },
+          });
+        });
     }
-
   };
+  const verifyUser = async () => {
+    const user = await AsyncStorage.getItem("user");
+    console.log(user);
+    if (user) {
+      const userData = JSON.parse(user);
+      if (userData.role == "admin") {
+        navigation.replace("DrawerNavigator");
+      } else {
+        navigation.replace("HomeUser");
+      }
+    } else {
+      setCheckUserLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    verifyUser();
+  }, []);
+
+  if (checkUserLoader) {
+    return (
+      <View
+        alignItems="center"
+        justifyContent="center"
+        flex={1}
+        bg="blueGray.900"
+        w="100%"
+      >
+        <Spinner size="lg" color="white" />
+      </View>
+    );
+  }
 
   return (
-    <View
-      flex={1}
-      bg="blueGray.900"
-      w="100%"
-    >
-      {/* <IconButton
-        onPress={toggleColorMode}
-        style={{ alignSelf: "flex-end" }}
-        _icon={{
-          as: MaterialCommunityIcons,
-          name: "theme-light-dark",
-          size: "xl",
-          _dark: { color: "warmGray.50" },
-          _light: { color: "coolGray.800" },
-        }}
-      /> */}
+    <View flex={1} bg="blueGray.900" w="100%">
+      <Box safeArea px="2" py="16" w="100%">
+        <Heading
+          size="lg"
+          fontWeight="600"
+          color="coolGray.800"
+          _dark={{
+            color: "warmGray.50",
+          }}
+        >
+          Welcome
+        </Heading>
+        <Heading
+          mt="1"
+          _dark={{
+            color: "warmGray.200",
+          }}
+          color="coolGray.600"
+          fontWeight="medium"
+          size="xs"
+        >
+          Sign in to continue!
+        </Heading>
 
-      <Center flex={1} w="100%">
-        <Box safeArea px="2" py="8" w="95%">
-          <Heading
-            size="lg"
-            fontWeight="600"
-            color="coolGray.800"
-            _dark={{
-              color: "warmGray.50",
-            }}
+        <VStack space={3} mt="5">
+          <FormControl>
+            <FormControl.Label>Email ID</FormControl.Label>
+            <Input
+              type="text"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={(value) => setEmail(value)}
+            />
+          </FormControl>
+          <FormControl>
+            <FormControl.Label>Password</FormControl.Label>
+            <Input
+              rightElement={
+                showPassword ? (
+                  <Ionicons
+                  onPress={()=> setShowPassword(!showPassword)}
+                    name="eye-off"
+                    size={24}
+                    color="white"
+                    style={{ paddingRight: 10 }}
+                  />
+                ) : (
+                  <Ionicons
+                  onPress={()=> setShowPassword(!showPassword)}
+                    name="eye"
+                    size={24}
+                    color="white"
+                    style={{ paddingRight: 10 }}
+                  />
+                )
+              }
+              type={showPassword ?'text':'password'}
+              value={password}
+              onChangeText={(value) => setpassword(value)}
+            />
+            <Link
+              _text={{
+                fontSize: "xs",
+                fontWeight: "500",
+                color: "indigo.300",
+              }}
+              alignSelf="flex-end"
+              mt="1"
+            >
+              Forget Password?
+            </Link>
+          </FormControl>
+          <Button
+            isLoading={loader}
+            isLoadingText="connecting ..."
+            onPress={loginHandler}
+            mt="2"
+            colorScheme="indigo"
           >
-            Welcome
-          </Heading>
-          <Heading
-            mt="1"
-            _dark={{
-              color: "warmGray.200",
-            }}
-            color="coolGray.600"
-            fontWeight="medium"
-            size="xs"
-          >
-            Sign in to continue!
-          </Heading>
-
-          <VStack space={3} mt="5">
-            <FormControl>
-              <FormControl.Label>Email ID</FormControl.Label>
-              <Input
-                type="text"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={(value) => setEmail(value)}
-              />
-            </FormControl>
-            <FormControl>
-              <FormControl.Label>Password</FormControl.Label>
-              <Input
-                type="password"
-                value={password}
-                onChangeText={(value) => setpassword(value)}
-              />
-              <Link
-                _text={{
-                  fontSize: "xs",
-                  fontWeight: "500",
-                  color: "indigo.300",
-                }}
-                alignSelf="flex-end"
-                mt="1"
-              >
-                Forget Password?
-              </Link>
-            </FormControl>
-            <Button onPress={loginHandler} mt="2" colorScheme="indigo">
-              Sign in
-            </Button>
-            <HStack mt="6" justifyContent="center">
-              <Text
-                fontSize="sm"
-                color="coolGray.600"
-                _dark={{
-                  color: "warmGray.200",
-                }}
-              >
-                I'm a new user.{" "}
-              </Text>
-              <Link
-                _text={{
-                  color: "indigo.300",
-                  fontWeight: "medium",
-                  fontSize: "sm",
-                }}
-                onPress={() => navigation.navigate("Signup")}
-              >
-                Sign Up
-              </Link>
-            </HStack>
-          </VStack>
-        </Box>
-      </Center>
+            Sign in
+          </Button>
+        </VStack>
+      </Box>
     </View>
   );
 };

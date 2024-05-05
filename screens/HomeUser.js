@@ -7,11 +7,11 @@ import { Fontisto } from "@expo/vector-icons";
 import { mapStyle } from "../utils/mapStyle";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from 'expo-location';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeUser = ({ navigation }) => {
-  
-  console.log('aaa')
-  console.log('bb')
+
+  const [location, setLocation] = useState()
 
   useEffect(() => {
     (async () => {
@@ -73,7 +73,8 @@ const HomeUser = ({ navigation }) => {
           </Text>
           
         </View>
-        <Pressable  onPress={()=> {
+        <Pressable  onPress={async()=> {
+           await AsyncStorage.removeItem('user')
             navigation.reset({
                 index: 0,
                 routes: [{ name: "Signin" }],

@@ -11,10 +11,10 @@ import { useCallback } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
 import Signin from "./screens/Signin";
-import Signup from "./screens/Signup";
 import SettingsUser from "./screens/SettingsUser";
 import HomeUser from "./screens/HomeUser";
 import DrawerMenu from "./components/headers/DrawerMenu";
+import CreateUser from "./screens/CreateUser";
 
 
 const Stack = createNativeStackNavigator();
@@ -118,7 +118,7 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen component={Signin} name="Signin" />
-            <Stack.Screen component={Signup} name="Signup" />
+            <Stack.Screen component={CreateUser} name="CreateUser" />
             <Stack.Screen component={DrawerNavigator} name="DrawerNavigator" />
             <Stack.Screen component={HomeUser} name="HomeUser" />
             <Stack.Screen component={SettingsUser} name="SettingsUser" />

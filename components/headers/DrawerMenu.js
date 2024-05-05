@@ -2,6 +2,7 @@ import { Image } from "react-native";
 import React from "react";
 import { Pressable, Text, View } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DrawerMenu = ({navigation}) => {
   return (
@@ -75,7 +76,8 @@ const DrawerMenu = ({navigation}) => {
         flexDirection="row"
         alignItems="flex-end"
        
-        onPress={()=> {
+        onPress={ async()=> {
+          await AsyncStorage.removeItem('user')
             navigation.reset({
                 index: 0,
                 routes: [{ name: "Signin" }],
