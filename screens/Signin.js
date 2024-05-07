@@ -30,46 +30,99 @@ const Signin = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const toast = useToast();
 
+  const re = /\S+@\S+\.\S+/;
+  const isValid = re.test(email);
+
   const loginHandler = async () => {
     if (!loader) {
       Keyboard.dismiss();
       toast.closeAll();
       setLoader(true);
-      axios
-        .post(`${URL}/users/signin`, {
-          email: email.trim().toLocaleLowerCase(),
-          password,
-        })
-        .then(async (res) => {
-          console.log("rep is :", res.data);
-          setLoader(false);
-          const user = res.data;
-          const userAsString = JSON.stringify(user);
-          await AsyncStorage.setItem("user", userAsString);
-          if (user.role == "admin") {
-            navigation.replace("DrawerNavigator");
-          } else {
-            navigation.replace("HomeUser");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoader(false);
-          toast.show({
-            placement: "bottom",
-            duration: 2000,
-            render: ({ id }) => {
-              return (
-                <ToastComponent
-                  id={id}
-                  closeHandler={() => toast.close(id)}
-                  title="Something went wrong"
-                  description="Please verify your Login Credentials"
-                />
-              );
-            },
-          });
+      if (!isValid) {
+        setLoader(false);
+        toast.show({
+          placement: "bottom",
+          duration: 2000,
+          render: ({ id }) => {
+            return (
+              <ToastComponent
+                id={id}
+                closeHandler={() => toast.close(id)}
+                title="Invalid email"
+                description="Please verify your mail address"
+              />
+            );
+          },
         });
+      } else if (password.length < 6) {
+        setLoader(false);
+        toast.show({
+          placement: "bottom",
+          duration: 2000,
+          render: ({ id }) => {
+            return (
+              <ToastComponent
+                id={id}
+                closeHandler={() => toast.close(id)}
+                title="Invalid password"
+                description="Please verify your password"
+              />
+            );
+          },
+        });
+      } else {
+        axios
+          .post(`${URL}/users/signin`, {
+            email: email.trim().toLocaleLowerCase(),
+            password,
+          })
+          .then(async (res) => {
+            console.log("rep is :", res.data);
+            setLoader(false);
+            const user = res.data;
+            const userAsString = JSON.stringify(user);
+            await AsyncStorage.setItem("user", userAsString);
+            if (user.role == "admin") {
+              navigation.replace("DrawerNavigator");
+            } else {
+              navigation.replace("HomeUser");
+            }
+          })
+          .catch((err) => {
+            setLoader(false);
+            if (err.response.status === 404 || err.response.status === 403) {
+              toast.show({
+                placement: "bottom",
+                duration: 2000,
+                render: ({ id }) => {
+                  return (
+                    <ToastComponent
+                      id={id}
+                      closeHandler={() => toast.close(id)}
+                      title="Something went wrong"
+                      description="Please verify your Login Credentials"
+                    />
+                  );
+                },
+              });
+            } else {
+              toast.show({
+                placement: "bottom",
+                duration: 2000,
+                render: ({ id }) => {
+                  return (
+                    <ToastComponent
+                      id={id}
+                      closeHandler={() => toast.close(id)}
+                      title="Something went wrong"
+                      description="Please verify your Internet Connexion"
+                    />
+                  );
+                },
+              });
+            }
+          });
+      }
     }
   };
   const verifyUser = async () => {
@@ -146,7 +199,7 @@ const Signin = ({ navigation }) => {
               rightElement={
                 showPassword ? (
                   <Ionicons
-                  onPress={()=> setShowPassword(!showPassword)}
+                    onPress={() => setShowPassword(!showPassword)}
                     name="eye-off"
                     size={24}
                     color="white"
@@ -154,7 +207,7 @@ const Signin = ({ navigation }) => {
                   />
                 ) : (
                   <Ionicons
-                  onPress={()=> setShowPassword(!showPassword)}
+                    onPress={() => setShowPassword(!showPassword)}
                     name="eye"
                     size={24}
                     color="white"
@@ -162,10 +215,11 @@ const Signin = ({ navigation }) => {
                   />
                 )
               }
-              type={showPassword ?'text':'password'}
+              type={showPassword ? "text" : "password"}
               value={password}
               onChangeText={(value) => setpassword(value)}
             />
+          </FormControl>
             <Link
               _text={{
                 fontSize: "xs",
@@ -177,7 +231,6 @@ const Signin = ({ navigation }) => {
             >
               Forget Password?
             </Link>
-          </FormControl>
           <Button
             isLoading={loader}
             isLoadingText="connecting ..."

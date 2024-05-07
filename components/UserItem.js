@@ -3,6 +3,7 @@ import { HStack, Link, Pressable, Text, View } from "native-base";
 import React from "react";
 import { Image, Linking } from "react-native";
 import { Feather,FontAwesome5 } from "@expo/vector-icons";
+import { URL } from "../utils/constants";
 
 const UserItem = ({ user }) => {
   const navigation = useNavigation();
@@ -21,7 +22,7 @@ const UserItem = ({ user }) => {
       borderRadius="md"
     >
       {user.image ?<Image
-        source={{ uri: user.image }}
+ source={{ uri: `${URL}/${user.image}` }}
         style={{ width: 60, height: 60, borderRadius: 30 }}
       /> : <View alignItems='center' style={{width: 60, height: 60,}} justifyContent="center">
         <FontAwesome5 name="user-alt" size={45}  color="white" />

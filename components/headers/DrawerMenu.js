@@ -9,7 +9,7 @@ const DrawerMenu = ({navigation}) => {
     <View bg='blueGray.900' flex={1}>
       <Image
         source={require("../../assets/icon.png")}
-        style={{ width: 120, height: 120, alignSelf: "center" }}
+        style={{ width: 120, height: 120, alignSelf: "center", marginTop: 25 }}
       />
       {/* home admin */}
       <Pressable

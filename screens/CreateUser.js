@@ -33,12 +33,82 @@ const CreateUser = ({ navigation }) => {
     { label: "Admin", value: "admin" },
   ];
 
+  const re = /\S+@\S+\.\S+/;
+  const isValid = re.test(email);
+
+
   const createNewUser = async () => {
     if (!loader) {
       Keyboard.dismiss();
       toast.closeAll();
       setLoader(true);
-      axios
+      if(firstname.length <2 || lastname.length < 2){
+        setLoader(false)
+        toast.show({
+          placement: "bottom",
+          duration: 2000,
+          render: ({ id }) => {
+            return (
+              <ToastComponent
+                id={id}
+                closeHandler={() => toast.close(id)}
+                title="Invalid name"
+                description="Firstname & lastname must have at least 2 chars."
+              />
+            );
+          },
+        });
+      }
+      else if(!isValid){
+        setLoader(false)
+        toast.show({
+          placement: "bottom",
+          duration: 2000,
+          render: ({ id }) => {
+            return (
+              <ToastComponent
+                id={id}
+                closeHandler={() => toast.close(id)}
+                title="Invalid email"
+                description="Please verify mail address"
+              />
+            );
+          },
+        });
+      } else if (password.length < 6){
+        setLoader(false)
+        toast.show({
+          placement: "bottom",
+          duration: 2000,
+          render: ({ id }) => {
+            return (
+              <ToastComponent
+                id={id}
+                closeHandler={() => toast.close(id)}
+                title="Invalid password"
+                description="Password must have at least 6 chars."
+              />
+            );
+          },
+        });
+      } else if (password != confirmpassword){
+        setLoader(false)
+        toast.show({
+          placement: "bottom",
+          duration: 2000,
+          render: ({ id }) => {
+            return (
+              <ToastComponent
+                id={id}
+                closeHandler={() => toast.close(id)}
+                title="Passwords does not match"
+                description="Please verify your passwords"
+              />
+            );
+          },
+        });
+      }else{
+        axios
         .post(`${URL}/users/create-user`, {
           firstname,
           lastname,
@@ -68,6 +138,8 @@ const CreateUser = ({ navigation }) => {
             },
           });
         });
+      }
+    
     }
   };
 
@@ -149,12 +221,7 @@ const CreateUser = ({ navigation }) => {
               />
             </FormControl>
             <Button
-              isDisabled={
-                password.length < 6 ||
-                password != confirmpassword ||
-                firstname.length < 2 ||
-                lastname.length < 2
-              }
+             
               isLoading={loader}
               isLoadingText="Creating account..."
               mt="2"
