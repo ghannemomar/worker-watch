@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useState } from "react";
 import DrawerHeader from "../components/headers/DrawerHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Image, ScrollView, StyleSheet } from "react-native";
+import { Image, Keyboard, ScrollView, StyleSheet } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { URL } from "../utils/constants";
 import * as ImagePicker from "expo-image-picker";
@@ -21,9 +21,14 @@ import axios from "axios";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import ToastComponent from "../components/ToastComponent";
 import SwitchComponent from "../components/SwitchComponent";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserData } from "../redux/Actions";
 
 const SettingsAdmin = ({ navigation }) => {
-  const [user, setUser] = useState(null);
+  
+  const userData = useSelector(state => state.userData)
+  const dispatch = useDispatch()
+  
   const [uploadLoader, setUploadLoader] = useState(false);
   const [acceptNotif, setAcceptNotif] = useState(true);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -33,24 +38,12 @@ const SettingsAdmin = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // const [email, setEmail] = useState("");
-  const [firstname, setFirstName] = useState("");
-  const [lastname, setLastName] = useState("");
+  const [firstname, setFirstName] = useState(userData.firstname);
+  const [lastname, setLastName] = useState(userData.lastname);
   const [loader, setLoader] = useState(false);
   const [loaderPassword, setLoaderPassword] = useState(false);
 
-  const getUserData = async () => {
-    const u = await AsyncStorage.getItem("user");
-    const userData = JSON.parse(u);
-    // setEmail(userData.email)
-    setFirstName(userData.firstname);
-    setLastName(userData.lastname);
-    setUser(userData);
-  };
-
-  useEffect(() => {
-    getUserData();
-  }, []);
-
+  
   const toast = useToast();
 
   const pickImageHandler = async () => {
@@ -85,12 +78,11 @@ const SettingsAdmin = ({ navigation }) => {
         } else {
           axios
             .post(`${URL}/users/upload-image`, {
-              user: user._id,
+              user: userData._id,
               image: base64,
             })
             .then(async (res) => {
-              await AsyncStorage.setItem("user", JSON.stringify(res.data));
-              setUser(res.data);
+              await dispatch(setUserData())
               setUploadLoader(false);
             })
             .catch((err) => {
@@ -98,21 +90,23 @@ const SettingsAdmin = ({ navigation }) => {
               setUploadLoader(false);
             });
         }
+      }else{
+        setUploadLoader(false)
       }
     }
   };
 
   const updateUserInfo = async () => {
     if (!loader) {
+      Keyboard.dismiss()
       setLoader(true);
       axios
-        .put(`${URL}/users/update-user?user=${user._id}`, {
+        .put(`${URL}/users/update-user?user=${userData._id}`, {
           firstname,
           lastname,
         })
         .then(async (res) => {
-          await AsyncStorage.setItem("user", JSON.stringify(res.data));
-          setUser(res.data);
+      dispatch(setUserData())
           setLoader(false);
           toast.show({
             placement: "bottom",
@@ -140,6 +134,7 @@ const SettingsAdmin = ({ navigation }) => {
   const changePassword = async () => {
     if (!loaderPassword) {
       setLoaderPassword(true);
+      Keyboard.dismiss()
        if (password.length < 6){
         setLoaderPassword(false)
         toast.show({
@@ -174,14 +169,13 @@ const SettingsAdmin = ({ navigation }) => {
         });
       }else{
       axios
-        .post(`${URL}/users/change-password?user=${user._id}`, {
+        .post(`${URL}/users/change-password?user=${userData._id}`, {
           password,
           currentPassword,
           
         })
         .then(async (res) => {
-          await AsyncStorage.setItem("user", JSON.stringify(res.data));
-          setUser(res.data);
+        dispatch(setUserData())
           setLoaderPassword(false);
           toast.show({
             placement: "bottom",
@@ -243,9 +237,9 @@ const SettingsAdmin = ({ navigation }) => {
   return (
     <View bg="blueGray.900" flex={1}>
       <DrawerHeader />
-      {user == null ? null : (
+      
         <View flex={1}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
             {/** image */}
             <Pressable
               onPress={pickImageHandler}
@@ -256,9 +250,9 @@ const SettingsAdmin = ({ navigation }) => {
             >
               {uploadLoader ? (
                 <Spinner size="lg" color="white" />
-              ) : user.image ? (
+              ) : userData.image ? (
                 <Image
-                  source={{ uri: `${URL}/${user.image}` }}
+                  source={{ uri: `${URL}/${userData.image}` }}
                   style={{ width: 120, height: 120, borderRadius: 60 }}
                 />
               ) : (
@@ -469,7 +463,7 @@ const SettingsAdmin = ({ navigation }) => {
             </View>
           </ScrollView>
         </View>
-      )}
+    
     </View>
   );
 };

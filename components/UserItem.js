@@ -5,7 +5,7 @@ import { Image, Linking } from "react-native";
 import { Feather,FontAwesome5 } from "@expo/vector-icons";
 import { URL } from "../utils/constants";
 
-const UserItem = ({ user }) => {
+const UserItem = ({ user ,onLongPress}) => {
   const navigation = useNavigation();
 
   const handleCallPress = (phoneNumber) => {
@@ -14,6 +14,7 @@ const UserItem = ({ user }) => {
   return (
     <Pressable
       onPress={() => navigation.navigate("UserInfo", user)}
+      onLongPress={onLongPress}
       mt="2"
       flexDirection="row"
       bg="blueGray.800"

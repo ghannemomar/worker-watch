@@ -21,10 +21,13 @@ import ToastComponent from "../components/ToastComponent";
 import { URL } from "../utils/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserData } from "../redux/Actions";
 
 const Signin = ({ navigation }) => {
-  const [email, setEmail] = useState("omar@live.fr");
-  const [password, setpassword] = useState("123456");
+  const userData = useSelector(state => state.userData)
+  const [email, setEmail] = useState("");
+  const [password, setpassword] = useState("");
   const [loader, setLoader] = useState(false);
   const [checkUserLoader, setCheckUserLoader] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +35,8 @@ const Signin = ({ navigation }) => {
 
   const re = /\S+@\S+\.\S+/;
   const isValid = re.test(email);
+
+  const dispatch = useDispatch()
 
   const loginHandler = async () => {
     if (!loader) {
@@ -77,18 +82,17 @@ const Signin = ({ navigation }) => {
             password,
           })
           .then(async (res) => {
-            console.log("rep is :", res.data);
-            setLoader(false);
-            const user = res.data;
-            const userAsString = JSON.stringify(user);
-            await AsyncStorage.setItem("user", userAsString);
-            if (user.role == "admin") {
+            setLoader(false)
+            await AsyncStorage.setItem("_id", res.data._id);
+            await dispatch(setUserData())
+            if (res.data.role == "admin") {
               navigation.replace("DrawerNavigator");
             } else {
               navigation.replace("HomeUser");
             }
           })
           .catch((err) => {
+            console.log(err)
             setLoader(false);
             if (err.response.status === 404 || err.response.status === 403) {
               toast.show({
@@ -126,15 +130,22 @@ const Signin = ({ navigation }) => {
     }
   };
   const verifyUser = async () => {
-    const user = await AsyncStorage.getItem("user");
-    console.log(user);
-    if (user) {
-      const userData = JSON.parse(user);
-      if (userData.role == "admin") {
-        navigation.replace("DrawerNavigator");
-      } else {
-        navigation.replace("HomeUser");
-      }
+     
+    const _id = await AsyncStorage.getItem("_id");
+    console.log(_id)
+    if (_id != null) {
+      await dispatch(setUserData())
+      axios.get(`${URL}/users/user-data?user=${_id}`).then(async (res) => {
+        console.log('result ' ,res.data)
+        if (res.data.role == "admin") {
+          navigation.replace("DrawerNavigator");
+        } else {
+          navigation.replace("HomeUser");
+        }  
+      }).catch(err => {
+        console.log(err)
+      })
+    
     } else {
       setCheckUserLoader(false);
     }

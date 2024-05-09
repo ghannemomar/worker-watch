@@ -1,20 +1,27 @@
-import { HStack, Icon, Pressable, Text, View } from "native-base";
+import { HStack, Icon, Pressable, Spinner, Text, View } from "native-base";
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Dimensions,
   Image,
   Linking,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { Fontisto } from "@expo/vector-icons";
 import { mapStyle } from "../utils/mapStyle";
-import { MaterialIcons,Ionicons,FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome,Ionicons,FontAwesome5 } from "@expo/vector-icons";
 import * as Location from "expo-location";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { URL } from "../utils/constants";
+import { useDispatch, useSelector } from "react-redux";
+import { removeUser, setActifSession, setUserData } from "../redux/Actions";
+import axios from "axios";
+import SessionChrono from "../components/SessionChrono";
+import FallModal from "../components/FallModal";
+import { Accelerometer } from "expo-sensors";
 
 
 const handleCallPress = (phoneNumber) => {
@@ -22,49 +29,82 @@ const handleCallPress = (phoneNumber) => {
 };
 
 const HomeUser = ({ navigation }) => {
-  const [location, setLocation] = useState();
-  const [user, setUser] = useState(null);
+ const userData = useSelector(state => state.userData)
+ const [loader,setLoader] = useState(true)
+ const actifSession = useSelector(state => state.actifSession)
+ const [showFallModal,setShowFallModal] = useState(false)
+ console.log('active session is ! ', actifSession) 
+ const dispatch = useDispatch()
+
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
         return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      console.log("location is : ", location);
+      }      
     })();
   }, []);
 
-  
-  const getUserData = async () => {
-    const u = await AsyncStorage.getItem("user");
-    const userData = JSON.parse(u);   
-    setUser(userData);
+
+  useEffect(() => {
+    subscribe();
+  }, []);
+
+  const subscribe = () => {
+    Accelerometer.setUpdateInterval(500); // updates every 500 ms
+
+    Accelerometer.addListener((accelerometerData) => {
+     
+      const {x,y,z} = accelerometerData
+      const totalForce = Math.sqrt(x * x + y * y + z * z);
+    if (totalForce < 0.5 || totalForce > 2.5) {
+      // Threshold values to tweak based on testing
+       setShowFallModal(true)
+      // After detecting a fall, you might want to do something like alerting a contact or triggering an alarm
+    } else {
+      
+    }
+    });
   };
 
   
+  
+  
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      getUserData();
+    const unsubscribe = navigation.addListener('focus', async() => {
+      await dispatch(setUserData())
+      await dispatch(setActifSession())
+      setLoader(false)
+
     });
 
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe;
   }, [navigation]);
 
-  const width = Dimensions.get("window").width;
+  const createSession = async () => {
+    let location = await Location.getCurrentPositionAsync({});
+   axios.post(`${URL}/sessions/create-session`,{
+    user:userData._id,
+    location : {latitude: location.coords.latitude, longitude: location.coords.longitude}
+   }).then(async ()=> {
+    await dispatch(setActifSession())
+   }).catch(err => {
+    console.log(err)
+   })
+  }
 
-  console.log(user)
   return (
     <View flex={1} bg="blueGray.900">
-       {user == null ? null : (
-           <ScrollView showsVerticalScrollIndicator={false}>
+       
+        {loader ? <View flex={1} alignItems='center' justifyContent='center'>
+          <Spinner  size='lg' color="white" />
+        </View>:    <ScrollView showsVerticalScrollIndicator={false}>
            <View px="2" mt="2">
              {/* user */}
              <View
-               onPress={() => navigation.navigate("UserInfo", user)}
                mt="2"
                flexDirection="row"
                bg="blueGray.800"
@@ -73,8 +113,8 @@ const HomeUser = ({ navigation }) => {
                borderRadius="md"
                mb="1"
              >
-              {user.image ? <Image
-                 source={{ uri: `${URL}/${user.image}` }}
+              {userData.image ? <Image
+                 source={{ uri: `${URL}/${userData.image}` }}
                  style={{ width: 60, height: 60, borderRadius: 30 }}
                /> : <FontAwesome5 name="user-alt" size={45}  color="white" />} 
                <HStack
@@ -85,8 +125,8 @@ const HomeUser = ({ navigation }) => {
                  justifyContent="space-between"
                >
                  <View mt="1">
-                   <Text fontFamily="Medium" fontSize="md">
-                     {user.firstname} {user.lastname}
+                   <Text fontFamily="Medium" fontSize="lg">
+                     {userData.firstname} {userData.lastname}
                    </Text>
                  </View>
                 <HStack alignItems='center' space="2">
@@ -106,7 +146,7 @@ const HomeUser = ({ navigation }) => {
    
                 <Pressable
                    onPress={async () => {
-                     await AsyncStorage.removeItem("user");
+                     await dispatch(removeUser())
                      navigation.reset({
                        index: 0,
                        routes: [{ name: "Signin" }],
@@ -125,8 +165,55 @@ const HomeUser = ({ navigation }) => {
                 </HStack>
                </HStack>
              </View>
+             {/** session */}
+{actifSession == null ?   <View
+               mt="2"
+               flexDirection="row"
+               bg="blueGray.800"
+               px="2"
+               py="4"
+               borderRadius="md"
+               mb="1"
+               w="full"
+               justifyContent='space-between'
+               alignItems="center"
+             >
+              <View>
+             <Text fontFamily='Medium' fontSize="md">No active Session</Text>
+             <Text fontFamily='Light' fontSize="xs" color="blueGray.300">Click on Play to start session.</Text>
+                </View>
+                <TouchableOpacity onPress={createSession}>
+             <FontAwesome name="play-circle" size={40} color="white" />
+                </TouchableOpacity>
+             
+             </View> : <View>
+              <SessionChrono />
+               {/* maps */}
+             {actifSession &&       <View bg="blueGray.600" mb="1" p="1" borderRadius="md" mt="2">
+                 <MapView
+                   customMapStyle={mapStyle}
+                   initialRegion={{
+                     latitude: 36.7072051,
+                     longitude: 10.4096896,
+                     latitudeDelta: 0.09,
+                     longitudeDelta: 0.0421,
+                   }}
+                   style={{
+                     width: "100%",
+                     alignSelf: "center",
+   
+                     height: 300,
+                   }}
+                 >
+                   <Marker
+                     coordinate={{ latitude: actifSession.location.latitude, longitude: actifSession.location.longitude }}
+                   />
+                 </MapView>
+               </View>}
+              </View> }
+             {/** emergency calls */}
             <HStack alignItems="center" space="2">
-            <Pressable  bg="warning.500" py="2" flex={1} my="2" borderRadius="md" alignItems="center" justifyContent="center" alignSelf="center"  onPress={() => handleCallPress('198')}  >
+            <Pressable  bg="warning.500" py="2" flex={1} my="2" borderRadius="md" alignItems="center" justifyContent="center" alignSelf="center"  onPress={() => handleCallPress('97470082')}  >
              <Ionicons name="warning" size={
               60
              } color="white" />
@@ -251,7 +338,7 @@ const HomeUser = ({ navigation }) => {
                      fontFamily="Medium"
                      mt="0.5"
                    >
-                     {user.temperature}20
+                     {userData.temperature}20
                      <Text fontSize="sm" fontFamily="Light">
                        {" "}
                        °C
@@ -328,32 +415,12 @@ const HomeUser = ({ navigation }) => {
                    Calm
                  </Text>
                </View>
-               {/* maps */}
-               <View bg="blueGray.300" mb="4" p="1" borderRadius="md" mt="3">
-                 <MapView
-                   customMapStyle={mapStyle}
-                   initialRegion={{
-                     latitude: 36.7072051, // Specify your latitude here
-                     longitude: 10.4096896, // Specify your longitude here
-                     latitudeDelta: 0.09,
-                     longitudeDelta: 0.0421,
-                   }}
-                   style={{
-                     width: "100%",
-                     alignSelf: "center",
-   
-                     height: 300,
-                   }}
-                 >
-                   <Marker
-                     coordinate={{ latitude: 36.7072051, longitude: 10.4096896 }}
-                   />
-                 </MapView>
-               </View>
+               
              </View>
+            
            </View>
-         </ScrollView>
-       )}
+         </ScrollView>}
+         {showFallModal && <FallModal isOpen={showFallModal} closeHandler={()=> setShowFallModal(false)}/>}
    
     </View>
   );

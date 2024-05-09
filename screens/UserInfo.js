@@ -6,7 +6,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import { Fontisto } from "@expo/vector-icons";
 import { mapStyle } from "../utils/mapStyle";
-import { Feather } from "@expo/vector-icons";
+import { Feather,FontAwesome5 } from "@expo/vector-icons";
 
 const UserInfo = ({ navigation, route }) => {
   const user = route.params;
@@ -33,10 +33,11 @@ const UserInfo = ({ navigation, route }) => {
       borderRadius='md'
       mb="1"
     >
-          <Image
-       source={{ uri: user.image }}
-       style={{ width: 60, height: 60, borderRadius: 30 }}
-     />
+      {user.image ? <Image
+                 source={{ uri: `${URL}/${user.image}` }}
+                 style={{ width: 60, height: 60, borderRadius: 30 }}
+               /> : <FontAwesome5 name="user-alt" size={45}  color="white" />} 
+        
           <HStack
         flex={1}
         mr="1"
@@ -68,165 +69,155 @@ const UserInfo = ({ navigation, route }) => {
           
           {/* cards */}
           <View >
-            <View
-              flexDirection="row"
-              alignItems="center"
-              justifyContent="space-between"
-              flexWrap="wrap"
-            >
-              {/* card 1 heart */}
-              <View
-                bg="blueGray.800"
-                borderRadius="md"
-                mt="2"
-                alignItems="center"
-                py="4"
-                style={{ width: "49%" }}
-              >
-                <Icon
-                  as={FontAwesome6}
-                  name="heart-pulse"
-                  color="warmGray.200"
-                  size="5xl"
-                />
-                <Text
-                  color="warmGray.200"
-                  textAlign="center"
-                  fontFamily="Bold"
-                  fontSize="md"
-                  mt="3"
-                >
-                  Heart Rate
-                </Text>
-                <Text
-                  textAlign="center"
-                  color="warmGray.200"
-                  fontSize="md"
-                  fontFamily="Medium"
-                  mt="0.5"
-                >
-                  81
-                  <Text fontSize="sm" fontFamily="Light">
-                    {" "}
-                    BTS
-                  </Text>
-                </Text>
-              </View>
-              {/* card 2 blood pressure */}
-              <View
-                bg="blueGray.800"
-                borderRadius="md"
-                mt="2"
-                alignItems="center"
-                py="4"
-                style={{ width: "49%" }}
-              >
-                <Icon
-                  as={FontAwesome6}
-                  name="heart-pulse"
-                  color="warmGray.200"
-                  size="5xl"
-                />
-                <Text
-                  color="warmGray.200"
-                  textAlign="center"
-                  fontFamily="Bold"
-                  fontSize="md"
-                  mt="3"
-                >
-                  Blood Pressure
-                </Text>
-                <Text
-                  textAlign="center"
-                  color="warmGray.200"
-                  fontSize="md"
-                  fontFamily="Medium"
-                  mt="0.5"
-                >
-                  120/75
-                  <Text fontSize="sm" fontFamily="Light">
-                    {" "}
-                    u
-                  </Text>
-                </Text>
-              </View>
-              {/* card 3 temperature */}
-              <View
-                bg="blueGray.800"
-                borderRadius="md"
-                mt="2"
-                alignItems="center"
-                py="4"
-                style={{ width: "49%" }}
-              >
-                <Icon
-                  as={FontAwesome6}
-                  name="temperature-high"
-                  color="warmGray.200"
-                  size="5xl"
-                />
-                <Text
-                  color="warmGray.200"
-                  textAlign="center"
-                  fontFamily="Bold"
-                  fontSize="md"
-                  mt="3"
-                >
-                  Temperature
-                </Text>
-                <Text
-                  textAlign="center"
-                  color="warmGray.200"
-                  fontSize="md"
-                  fontFamily="Medium"
-                  mt="0.5"
-                >
-                  36.5
-                  <Text fontSize="sm" fontFamily="Light">
-                    {" "}
-                    °C
-                  </Text>
-                </Text>
-              </View>
-              {/* card 4 SpO2 */}
-              <View
-                bg="blueGray.800"
-                borderRadius="md"
-                mt="2"
-                alignItems="center"
-                py="4"
-                style={{ width: "49%" }}
-              >
-                <Icon
-                  as={FontAwesome6}
-                  name="heart-pulse"
-                  color="warmGray.200"
-                  size="5xl"
-                />
-                <Text
-                  color="warmGray.200"
-                  textAlign="center"
-                  fontFamily="Bold"
-                  fontSize="md"
-                  mt="3"
-                >
-                  SpO2
-                </Text>
-                <Text
-                  textAlign="center"
-                  color="warmGray.200"
-                  fontSize="md"
-                  fontFamily="Medium"
-                  mt="0.5"
-                >
-                  90
-                  <Text fontSize="sm" fontFamily="Light">
-                    {" "}
-                    %
-                  </Text>
-                </Text>
-              </View>
-            </View>
+          <View
+                 flexDirection="row"
+                 alignItems="center"
+                 justifyContent="space-between"
+                 flexWrap="wrap"
+               >
+                 {/* card 1 heart */}
+                 <View
+                   bg="blueGray.800"
+                   borderRadius="md"
+                   mt="2"
+                   alignItems="center"
+                   py="4"
+                   style={{ width: "49%" }}
+                 >
+                   <Icon
+                     as={FontAwesome6}
+                     name="heart-pulse"
+                     color="warmGray.200"
+                     size="5xl"
+                   />
+                   <Text
+                     color="warmGray.200"
+                     textAlign="center"
+                     fontFamily="Bold"
+                     fontSize="md"
+                     mt="3"
+                   >
+                     Heart Rate
+                   </Text>
+                   <Text
+                     textAlign="center"
+                     color="warmGray.200"
+                     fontSize="md"
+                     fontFamily="Medium"
+                     mt="0.5"
+                   >
+                     81
+                     <Text fontSize="sm" fontFamily="Light">
+                       {" "}
+                       BTS
+                     </Text>
+                   </Text>
+                 </View>
+                 {/* card 2 blood pressure */}
+                 <View
+                   bg="blueGray.800"
+                   borderRadius="md"
+                   mt="2"
+                   alignItems="center"
+                   py="4"
+                   style={{ width: "49%" }}
+                 >
+                  <Image source={require('../assets/blood-pressure.png')} style={{width:50,height:50}}/>
+                   <Text
+                     color="warmGray.200"
+                     textAlign="center"
+                     fontFamily="Bold"
+                     fontSize="md"
+                     mt="3"
+                   >
+                     Blood Pressure
+                   </Text>
+                   <Text
+                     textAlign="center"
+                     color="warmGray.200"
+                     fontSize="md"
+                     fontFamily="Medium"
+                     mt="0.5"
+                   >
+                     120/75
+                     <Text fontSize="sm" fontFamily="Light">
+                       {" "}
+                       u
+                     </Text>
+                   </Text>
+                 </View>
+                 {/* card 3 temperature */}
+                 <View
+                   bg="blueGray.800"
+                   borderRadius="md"
+                   mt="2"
+                   alignItems="center"
+                   py="4"
+                   style={{ width: "49%" }}
+                 >
+                   <Icon
+                     as={FontAwesome6}
+                     name="temperature-high"
+                     color="warmGray.200"
+                     size="5xl"
+                   />
+                   <Text
+                     color="warmGray.200"
+                     textAlign="center"
+                     fontFamily="Bold"
+                     fontSize="md"
+                     mt="3"
+                   >
+                     Temperature
+                   </Text>
+                   <Text
+                     textAlign="center"
+                     color="warmGray.200"
+                     fontSize="md"
+                     fontFamily="Medium"
+                     mt="0.5"
+                   >
+                     {user.temperature}20
+                     <Text fontSize="sm" fontFamily="Light">
+                       {" "}
+                       °C
+                     </Text>
+                   </Text>
+                 </View>
+                 {/* card 4 SpO2 */}
+                 <View
+                   bg="blueGray.800"
+                   borderRadius="md"
+                   mt="2"
+                   alignItems="center"
+                   py="4"
+                   style={{ width: "49%" }}
+                 >
+                  <Image source={require('../assets/spo2.png')} style={{width:50,height:50}}/>
+                   <Text
+                     color="warmGray.200"
+                     textAlign="center"
+                     fontFamily="Bold"
+                     fontSize="md"
+                     mt="3"
+                   >
+                     SpO2
+                   </Text>
+                   <Text
+                     textAlign="center"
+                     color="warmGray.200"
+                     fontSize="md"
+                     fontFamily="Medium"
+                     mt="0.5"
+                   >
+                     90
+                     <Text fontSize="sm" fontFamily="Light">
+                       {" "}
+                       %
+                     </Text>
+                   </Text>
+                 </View>
+               </View>
 
             {/* card 5 Stress */}
             <View

@@ -16,10 +16,12 @@ import { Keyboard, ScrollView } from "react-native";
 import { URL } from "../utils/constants";
 import ToastComponent from "../components/ToastComponent";
 import BackHeader from "../components/headers/BackHeader";
+import { FontAwesome5, Ionicons,AntDesign } from "@expo/vector-icons";
 
 const CreateUser = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [firstname, setFirstName] = useState("");
+  const [phone, setPhone] = useState("");
   const [lastname, setLastName] = useState("");
   const [password, setpassword] = useState("");
   const [confirmpassword, setconfirmpassword] = useState("");
@@ -115,6 +117,7 @@ const CreateUser = ({ navigation }) => {
           email : email.trim().toLocaleLowerCase(),
           password,
           role,
+          phone
         })
         .then((res) => {
           setLoader(false);
@@ -153,25 +156,66 @@ const CreateUser = ({ navigation }) => {
             Create new User
           </Heading>
           <VStack space={3} mt="5">
+          <FormControl>
+                  <FormControl.Label>First Name</FormControl.Label>
+                  <Input
+                    leftElement={
+                      <FontAwesome5
+                        name="user-alt"
+                        size={20}
+                        color="white"
+                        style={{ paddingLeft: 10 }}
+                      />
+                    }
+                    type="text"
+                    value={firstname}
+                    onChangeText={(value) => setFirstName(value)}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormControl.Label>Last Name</FormControl.Label>
+                  <Input
+                    leftElement={
+                      <FontAwesome5
+                        name="user-friends"
+                        size={20}
+                        color="white"
+                        style={{ paddingLeft: 10 }}
+                      />
+                    }
+                    type="text"
+                    value={lastname}
+                    onChangeText={(value) => setLastName(value)}
+                  />
+                </FormControl>
             <FormControl>
-              <FormControl.Label>First Name</FormControl.Label>
+              <FormControl.Label>Phone number</FormControl.Label>
               <Input
+              leftElement={
+                <FontAwesome5
+                  name="phone-alt"
+                  size={20}
+                  color="white"
+                  style={{ paddingLeft: 10 }}
+                />
+              }
                 type="text"
-                value={firstname}
-                onChangeText={(value) => setFirstName(value)}
-              />
-            </FormControl>
-            <FormControl>
-              <FormControl.Label>Last Name</FormControl.Label>
-              <Input
-                type="text"
-                value={lastname}
-                onChangeText={(value) => setLastName(value)}
+                value={phone}
+                keyboardType="phone-pad"
+                onChangeText={(value) => setPhone(value)}
               />
             </FormControl>
             <FormControl>
               <FormControl.Label>Email</FormControl.Label>
               <Input
+               leftElement={
+                <Ionicons
+                  name="mail"
+                  size={22}
+                  color="white"
+                  style={{ paddingLeft: 8 }}
+                />
+              }
                 type="text"
                 keyboardType="email-address"
                 value={email}
@@ -207,6 +251,14 @@ const CreateUser = ({ navigation }) => {
             <FormControl>
               <FormControl.Label>Password</FormControl.Label>
               <Input
+               leftElement={
+                <FontAwesome5
+                  name="lock"
+                  size={20}
+                  color="white"
+                  style={{ paddingLeft: 10 }}
+                />
+              }
                 type="password"
                 value={password}
                 onChangeText={(value) => setpassword(value)}
@@ -215,6 +267,14 @@ const CreateUser = ({ navigation }) => {
             <FormControl>
               <FormControl.Label>Confirm Password</FormControl.Label>
               <Input
+                leftElement={
+                  <AntDesign
+                    name="checkcircle"
+                    size={20}
+                    color="white"
+                    style={{ paddingLeft: 10 }}
+                  />
+                }
                 type="password"
                 value={confirmpassword}
                 onChangeText={(value) => setconfirmpassword(value)}

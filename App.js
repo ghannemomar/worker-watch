@@ -15,6 +15,8 @@ import SettingsUser from "./screens/SettingsUser";
 import HomeUser from "./screens/HomeUser";
 import DrawerMenu from "./components/headers/DrawerMenu";
 import CreateUser from "./screens/CreateUser";
+import { Provider } from "react-redux";
+import store from "./redux/store";
 
 
 const Stack = createNativeStackNavigator();
@@ -112,11 +114,13 @@ export default function App() {
   };
 
   return (
-    <NativeBaseProvider theme={customTheme}>
+    <Provider store={store}>
+ <NativeBaseProvider theme={customTheme}>
        <StatusBar style="auto" backgroundColor="#0f172a" />
       <View style={{ flex: 1 }} onLayout={onLayoutRootView} bg="white">
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
+          
             <Stack.Screen component={Signin} name="Signin" />
             <Stack.Screen component={CreateUser} name="CreateUser" />
             <Stack.Screen component={DrawerNavigator} name="DrawerNavigator" />
@@ -128,5 +132,7 @@ export default function App() {
        
       </View>
     </NativeBaseProvider>
+    </Provider>
+   
   );
 }

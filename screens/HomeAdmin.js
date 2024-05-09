@@ -8,6 +8,8 @@ import { Platform, RefreshControl } from "react-native";
 import axios from "axios";
 import { URL } from "../utils/constants";
 import { AntDesign } from "@expo/vector-icons";
+import DeleteUser from "../components/DeleteUser";
+import { useSelector } from "react-redux";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -17,9 +19,12 @@ Notifications.setNotificationHandler({
 });
 
 function HomeAdmin({navigation}) {
+  const userData = useSelector(state => state.userData)
   const [users, setUsers] = useState([]);
   const [loader, setLoader] = useState(true);
   const [refreshLoader, setRefreshLoader] = useState(false);
+  const [showDeleteModal,setShowDeleteModal] = useState(false)
+  const [userToDelete,setUserToDelete] = useState(null)
   // get user token for notification
   async function registerForPushNotificationsAsync() {
     let token;
@@ -45,14 +50,21 @@ function HomeAdmin({navigation}) {
         console.log("Failed to get push token for push notification!");
         return;
       }
-
+      
       token = (
         await Notifications.getExpoPushTokenAsync({
           projectId: "46f68428-0548-4802-b92a-d0381e75011a",
         })
       ).data;
+      
+      console.log('token, ', token)
+      console.log('id user ', userData._id)
 
-      console.log("token is : ", token);
+     axios.put(`${URL}/users/update-user?user=${userData._id}`,{
+      token
+     }).then(res => {
+      console.log('added')
+     }).catch(err => console.log(err))
 
       // if (Platform.OS == "android") {
       //   axios.put(process.env.USER_UPDATE, {
@@ -111,7 +123,10 @@ function HomeAdmin({navigation}) {
               ))
             : 
             <View>
-{users.map((user) => <UserItem key={user._id} user={user} />)}
+{users.map((user) => <UserItem  onLongPress={() => {
+                        setUserToDelete(user);
+                        setShowDeleteModal(true);
+                      }} key={user._id} user={user} />)}
 
             </View>
             }
@@ -119,6 +134,18 @@ function HomeAdmin({navigation}) {
 
       </ScrollView>
       <Fab onPress={()=> navigation.navigate('CreateUser')} renderInPortal={false} bg="blueGray.500" _pressed={{bg:'blueGray.700'}} shadow={2} size={16} icon={<Icon color="white" as={AntDesign} name="plus" size="xl" />} />
+    {/* modal to delete a user */}
+    {userToDelete && (
+            <DeleteUser
+            userToDelete={userToDelete}
+              isOpen={showDeleteModal}
+              getAllUsers={getAllUsers}
+              closeHandler={() => {
+                setShowDeleteModal(false);
+                setUserToDelete(null);
+              }}
+            />
+          )}
     </VStack>
   );
 }

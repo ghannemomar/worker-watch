@@ -2,9 +2,11 @@ import { Image } from "react-native";
 import React from "react";
 import { Pressable, Text, View } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
+import { removeUser } from "../../redux/Actions";
 
 const DrawerMenu = ({navigation}) => {
+  const dispatch = useDispatch()
   return (
     <View bg='blueGray.900' flex={1}>
       <Image
@@ -77,7 +79,7 @@ const DrawerMenu = ({navigation}) => {
         alignItems="flex-end"
        
         onPress={ async()=> {
-          await AsyncStorage.removeItem('user')
+            await dispatch(removeUser())
             navigation.reset({
                 index: 0,
                 routes: [{ name: "Signin" }],
