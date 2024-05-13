@@ -2,10 +2,10 @@ import { useNavigation } from "@react-navigation/native";
 import { HStack, Link, Pressable, Text, View } from "native-base";
 import React from "react";
 import { Image, Linking } from "react-native";
-import { Feather,FontAwesome5 } from "@expo/vector-icons";
+import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { URL } from "../utils/constants";
 
-const UserItem = ({ user ,onLongPress}) => {
+const UserItem = ({ user, onLongPress }) => {
   const navigation = useNavigation();
 
   const handleCallPress = (phoneNumber) => {
@@ -22,12 +22,20 @@ const UserItem = ({ user ,onLongPress}) => {
       py="4"
       borderRadius="md"
     >
-      {user.image ?<Image
- source={{ uri: `${URL}/${user.image}` }}
-        style={{ width: 60, height: 60, borderRadius: 30 }}
-      /> : <View alignItems='center' style={{width: 60, height: 60,}} justifyContent="center">
-        <FontAwesome5 name="user-alt" size={45}  color="white" />
-        </View>}
+      {user.image ? (
+        <Image
+          source={{ uri: `${URL}/${user.image}` }}
+          style={{ width: 60, height: 60, borderRadius: 30 }}
+        />
+      ) : (
+        <View
+          alignItems="center"
+          style={{ width: 60, height: 60 }}
+          justifyContent="center"
+        >
+          <FontAwesome5 name="user-alt" size={45} color="white" />
+        </View>
+      )}
       <HStack
         flex={1}
         mr="1"

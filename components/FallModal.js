@@ -2,20 +2,26 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import {  StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { AlertDialog, Button, Text } from "native-base";
+import axios from 'axios';
+import { URL } from '../utils/constants';
+import { useSelector } from 'react-redux';
 
 
 const FallModal = ({ isOpen, closeHandler }) => {
     const [alertSent, setAlertSent] = useState(false);
     const [timer, setTimer] = useState(null);
 
- 
-
+ const userData = useSelector(state => state.userData)
   useEffect(() => {
     // Set a timeout to send an alert to the supervisor after 10 seconds
     const timeoutId = setTimeout(() => {
         if (!alertSent) {
             console.log('send notification to admin and save fall in the active session')
-            setAlertSent(true);
+            axios.post(`${URL}/sessions/save-fall`,{user: userData._id }).then(res => {
+              setAlertSent(true)
+              closeHandler()
+            })
+                                  setAlertSent(true);
         }
     }, 10000);  // 10000 milliseconds = 10 seconds
 

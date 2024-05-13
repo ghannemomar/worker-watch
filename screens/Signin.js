@@ -198,6 +198,7 @@ const Signin = ({ navigation }) => {
           <FormControl>
             <FormControl.Label>Email ID</FormControl.Label>
             <Input
+            placeholder="mail address"
               type="text"
               keyboardType="email-address"
               value={email}
@@ -207,6 +208,7 @@ const Signin = ({ navigation }) => {
           <FormControl>
             <FormControl.Label>Password</FormControl.Label>
             <Input
+             placeholder="******"
               rightElement={
                 showPassword ? (
                   <Ionicons

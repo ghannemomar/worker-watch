@@ -1,6 +1,6 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "react-native";
+import { LogBox, StatusBar } from "react-native";
 import HomeAdmin from "./screens/HomeAdmin";
 import UserInfo from "./screens/UserInfo";
 import Notifications from "./screens/Notifications";
@@ -18,6 +18,8 @@ import CreateUser from "./screens/CreateUser";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
+
+SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -37,6 +39,7 @@ export default function App() {
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
+      LogBox.ignoreAllLogs()
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);

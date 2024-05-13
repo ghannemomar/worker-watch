@@ -7,7 +7,7 @@ import { setActifSession } from "../redux/Actions";
 import { URL } from "../utils/constants";
 ;
 
-const SessionChrono = () => {
+const SessionChrono = ({getSessions}) => {
   const actifSession = useSelector((state) => state.actifSession);
   const [elapsedTime, setElapsedTime] = useState(0);
  
@@ -16,9 +16,11 @@ const SessionChrono = () => {
   const stopTimer = () => {
     axios.put(`${URL}/sessions/update-session?session=${actifSession._id}`,{
         actif:false,
-        end_date: new Date()
-    }).then(async (res) => {
+        end_time: new Date()
+    }).then(async (res) => {+
+      getSessions()
        dispatch(setActifSession()) 
+
     })
 
   };
