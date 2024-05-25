@@ -1,14 +1,14 @@
 import { HStack, Skeleton, Text, View } from "native-base";
 import React, { useEffect } from "react";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import SessionsList from "./SesisonsList"
+import SessionsList from "./SesisonsList";
+import { useSelector } from "react-redux";
 
-const UserSessions = ({sessions,getSessions,sessionsLoader}) => {
-
-
+const UserSessions = ({ sessions, getSessions, sessionsLoader }) => {
+  const userData = useSelector((state) => state.userData);
   useEffect(() => {
     getSessions();
-  }, []);
+  }, [userData]);
 
   return (
     <View>
@@ -35,7 +35,7 @@ const UserSessions = ({sessions,getSessions,sessionsLoader}) => {
         </Text>
       ) : (
         <View>
-            <SessionsList sessions={sessions}/>
+          <SessionsList sessions={sessions} />
         </View>
       )}
     </View>

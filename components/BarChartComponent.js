@@ -1,35 +1,35 @@
 import moment from "moment";
 import React from "react";
-import { View } from "react-native";
+import { View } from "native-base";
 import {
   VictoryAxis,
+  VictoryBar,
   VictoryChart,
-  VictoryLine,
   VictoryTheme,
 } from "victory-native";
 
-const LineChartComponent = ({ data, min, max }) => {
-  const formattedData = data.map((dataPoint) => ({
+const BarChartComponent = ({ data, min, max }) => {
+  /*const formattedData = data.map((dataPoint) => ({
     date: moment(new Date(dataPoint.date)).format("DD-MM-YY HH:mm:ss"),
     value: dataPoint.value,
-  }));
+  }));*/
+  const formattedData = data.map((dataPoint) => dataPoint.value).slice(-40);
   return (
     <View style={{ marginLeft: -10 }}>
       <VictoryChart
-        minDomain={{ y: min }}
-        maxDomain={{ y: max }}
+        minDomain={{ y: 34 }}
+        maxDomain={{ y: 38 }}
         theme={VictoryTheme.material}
-        height={400}
+        domainPadding={{ x: -10 }} // Add padding to the domain
       >
         <VictoryAxis
+          tickFormat={() => ""} // Hide x-axis labels
           style={{
             grid: { stroke: "none" }, // Remove grid lines on x-axis
           }}
-          orientation="bottom"
-          tickFormat={() => ""} // Hide x-axis labels
         />
         <VictoryAxis
-          dependentAxis
+          tickFormat={(val) => val + "°C"}
           style={{
             tickLabels: {
               fontWeight: "bold",
@@ -37,21 +37,23 @@ const LineChartComponent = ({ data, min, max }) => {
               dx: 5,
               fill: "#fff",
             }, // Rotate the text vertically
+            grid: { stroke: "none" }, // Remove grid lines on x-axis
           }}
+          dependentAxis
         />
-        <VictoryLine
-          interpolation="natural"
-          data={formattedData}
-          animate={{ duration: 2000 }} // Set duration of animation in milliseconds
-          x="date"
-          y="value"
+        <VictoryBar
           style={{
-            data: { stroke: "#ffff", strokeWidth: 4 },
+            data: {
+              fill: "#ffffff", // Cycle through colors
+            },
           }}
+          barWidth={2}
+          animate={{ duration: 1000 }}
+          data={formattedData}
         />
       </VictoryChart>
     </View>
   );
 };
 
-export default LineChartComponent;
+export default BarChartComponent;

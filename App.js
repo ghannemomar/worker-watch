@@ -18,7 +18,6 @@ import CreateUser from "./screens/CreateUser";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
-
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
@@ -39,7 +38,7 @@ export default function App() {
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
-      LogBox.ignoreAllLogs()
+      LogBox.ignoreAllLogs();
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
@@ -105,11 +104,11 @@ export default function App() {
   const DrawerNavigator = () => {
     return (
       <Drawer.Navigator
-       screenOptions={{ headerShown: false }}
-       drawerContent={(props) => <DrawerMenu {...props} />}
+        screenOptions={{ headerShown: false }}
+        drawerContent={(props) => <DrawerMenu {...props} />}
       >
         <Drawer.Screen component={HomeAdmin} name="HomeAdmin" />
-       
+
         <Drawer.Screen component={Notifications} name="Notifications" />
         <Drawer.Screen component={SettingsAdmin} name="SettingsAdmin" />
       </Drawer.Navigator>
@@ -118,24 +117,24 @@ export default function App() {
 
   return (
     <Provider store={store}>
- <NativeBaseProvider theme={customTheme}>
-       <StatusBar style="auto" backgroundColor="#0f172a" />
-      <View style={{ flex: 1 }} onLayout={onLayoutRootView} bg="white">
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-          
-            <Stack.Screen component={Signin} name="Signin" />
-            <Stack.Screen component={CreateUser} name="CreateUser" />
-            <Stack.Screen component={DrawerNavigator} name="DrawerNavigator" />
-            <Stack.Screen component={HomeUser} name="HomeUser" />
-            <Stack.Screen component={SettingsUser} name="SettingsUser" />
-            <Stack.Screen component={UserInfo} name="UserInfo" />
-          </Stack.Navigator>
-        </NavigationContainer>
-       
-      </View>
-    </NativeBaseProvider>
+      <NativeBaseProvider theme={customTheme}>
+        <StatusBar style="auto" backgroundColor="#0f172a" />
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView} bg="white">
+          <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen component={Signin} name="Signin" />
+              <Stack.Screen component={CreateUser} name="CreateUser" />
+              <Stack.Screen
+                component={DrawerNavigator}
+                name="DrawerNavigator"
+              />
+              <Stack.Screen component={HomeUser} name="HomeUser" />
+              <Stack.Screen component={SettingsUser} name="SettingsUser" />
+              <Stack.Screen component={UserInfo} name="UserInfo" />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </View>
+      </NativeBaseProvider>
     </Provider>
-   
   );
 }

@@ -1,8 +1,6 @@
 import { HStack, Icon, Pressable, Spinner, Text, View } from "native-base";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
-  Dimensions,
   Image,
   Linking,
   ScrollView,
@@ -11,7 +9,7 @@ import {
 } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
-import { Fontisto } from "@expo/vector-icons";
+
 import { mapStyle } from "../utils/mapStyle";
 import { FontAwesome, Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import * as Location from "expo-location";
@@ -34,7 +32,7 @@ const HomeUser = ({ navigation }) => {
   const [sessionsLoader, setSesisonsLoader] = useState(true);
   const actifSession = useSelector((state) => state.actifSession);
   const [showFallModal, setShowFallModal] = useState(false);
-  const [createSessionLoader,setCreateSessionLoader] = useState(false)
+  const [createSessionLoader, setCreateSessionLoader] = useState(false);
   const dispatch = useDispatch();
 
   const [sessions, setSessions] = useState([]);
@@ -47,11 +45,53 @@ const HomeUser = ({ navigation }) => {
       });
   };
 
+  function calculateStats(numbers) {
+    if (numbers.length === 0) {
+      return {
+        average: 0,
+        min: 0,
+        max: 0,
+      };
+    }
+
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    const average = sum / numbers.length;
+    const min = Math.min(...numbers);
+    const max = Math.max(...numbers);
+
+    return {
+      average: parseFloat(average.toFixed(2)),
+      min: parseFloat(min.toFixed(2)),
+      max: parseFloat(max.toFixed(2)),
+    };
+  }
+
+  const heartArray =
+    actifSession && actifSession.heart_records.length > 0
+      ? actifSession.heart_records.map((el) => el.value)
+      : [];
+  const caloriesArray =
+    actifSession && actifSession.calories_records.length > 0
+      ? actifSession.calories_records.map((el) => el.value)
+      : [];
+  const tempArray =
+    actifSession && actifSession.temperature_records.length > 0
+      ? actifSession.temperature_records.map((el) => el.value)
+      : [];
+  const heartStats = calculateStats(heartArray);
+  const caloriesStats = calculateStats(caloriesArray);
+  const temperatureStats = calculateStats(tempArray);
+  const distance =
+    actifSession && actifSession.distance_records.length > 0
+      ? actifSession.distance_records[actifSession.distance_records.length - 1]
+          .value
+      : 0;
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
+        console.log("Permission to access location was denied");
         return;
       }
     })();
@@ -62,21 +102,21 @@ const HomeUser = ({ navigation }) => {
   }, [actifSession]);
 
   const subscribe = () => {
-  if(actifSession){
-    Accelerometer.setUpdateInterval(500); // updates every 500 ms
+    if (actifSession) {
+      Accelerometer.setUpdateInterval(500); // updates every 500 ms
 
-    Accelerometer.addListener((accelerometerData) => {
-      const { x, y, z } = accelerometerData;
-      const totalForce = Math.sqrt(x * x + y * y + z * z);
-      
-      if (totalForce < 0.1 ) {
-        // Threshold values to tweak based on testing
-        setShowFallModal(true);
-        // After detecting a fall, you might want to do something like alerting a contact or triggering an alarm
-      } else {
-      }
-    });
-  }
+      Accelerometer.addListener((accelerometerData) => {
+        const { x, y, z } = accelerometerData;
+        const totalForce = Math.sqrt(x * x + y * y + z * z);
+
+        if (totalForce < 0.1) {
+          // Threshold values to tweak based on testing
+          setShowFallModal(true);
+          // After detecting a fall, you might want to do something like alerting a contact or triggering an alarm
+        } else {
+        }
+      });
+    }
   };
 
   useEffect(() => {
@@ -91,7 +131,7 @@ const HomeUser = ({ navigation }) => {
   }, [navigation]);
 
   const createSession = async () => {
-    setCreateSessionLoader(true)
+    setCreateSessionLoader(true);
     let location = await Location.getCurrentPositionAsync({});
     axios
       .post(`${URL}/sessions/create-session`, {
@@ -103,7 +143,7 @@ const HomeUser = ({ navigation }) => {
       })
       .then(async () => {
         await dispatch(setActifSession());
-        setCreateSessionLoader(false)
+        setCreateSessionLoader(false);
       })
       .catch((err) => {
         console.log(err);
@@ -112,7 +152,7 @@ const HomeUser = ({ navigation }) => {
 
   return (
     <View flex={1} bg="blueGray.900">
-      {loader   ? (
+      {loader ? (
         <View flex={1} alignItems="center" justifyContent="center">
           <Spinner size="large" color="white" />
         </View>
@@ -243,8 +283,15 @@ const HomeUser = ({ navigation }) => {
                     Click on Play to start session.
                   </Text>
                 </View>
-                <TouchableOpacity onPress={createSession} style={{marginRight:3}}>
-                  {createSessionLoader ? <Spinner size="large"  color="white" /> : <FontAwesome name="play-circle" size={40} color="white" />}
+                <TouchableOpacity
+                  onPress={createSession}
+                  style={{ marginRight: 3 }}
+                >
+                  {createSessionLoader ? (
+                    <Spinner size="large" color="white" />
+                  ) : (
+                    <FontAwesome name="play-circle" size={40} color="white" />
+                  )}
                 </TouchableOpacity>
               </View>
             ) : (
@@ -253,7 +300,7 @@ const HomeUser = ({ navigation }) => {
 
                 {/* maps */}
                 {actifSession && (
-                  <View bg="blueGray.600" mb="1" p="1" borderRadius="md" mt="2">
+                  <View bg="blueGray.600" mb="1" p="1" borderRadius="md">
                     <MapView
                       customMapStyle={mapStyle}
                       initialRegion={{
@@ -277,16 +324,17 @@ const HomeUser = ({ navigation }) => {
                       />
                     </MapView>
                     {/* cards */}
-                    <View>
+                    <View w="full">
                       <View
                         flexDirection="row"
-                        alignItems="center"
+                        alignItems="stretch"
                         justifyContent="space-between"
                         flexWrap="wrap"
+                        mt="2"
                       >
-                        {/* card 1 heart */}
+                        {/* card 1 heart rate */}
                         <View
-                          bg="blueGray.800"
+                          bg="blueGray.900"
                           borderRadius="md"
                           mt="2"
                           alignItems="center"
@@ -303,64 +351,87 @@ const HomeUser = ({ navigation }) => {
                             color="warmGray.200"
                             textAlign="center"
                             fontFamily="Bold"
-                            fontSize="md"
+                            fontSize="xl"
                             mt="3"
+                            borderBottomWidth="1"
+                            borderBottomColor="white"
+                            mb="2"
                           >
                             Heart Rate
                           </Text>
                           <Text
+                            color="blueGray.200"
+                            fontFamily="Bold"
+                            fontSize="lg"
+                          >
+                            {heartStats.average} bpm
+                          </Text>
+                          <Text
                             textAlign="center"
-                            color="warmGray.200"
+                            color="blueGray.300"
                             fontSize="md"
                             fontFamily="Medium"
                             mt="0.5"
                           >
-                            81
-                            <Text fontSize="sm" fontFamily="Light">
+                            {heartStats.min} - {heartStats.max}
+                            <Text fontSize="md" fontFamily="Light">
                               {" "}
-                              BTS
+                              bpm
                             </Text>
                           </Text>
                         </View>
-                        {/* card 2 blood pressure */}
+                        {/* card 2 Calories */}
                         <View
-                          bg="blueGray.800"
+                          bg="blueGray.900"
                           borderRadius="md"
                           mt="2"
                           alignItems="center"
                           py="4"
                           style={{ width: "49%" }}
                         >
-                          <Image
-                            source={require("../assets/blood-pressure.png")}
-                            style={{ width: 50, height: 50 }}
+                          <Icon
+                            as={FontAwesome6}
+                            name="fire"
+                            color="warmGray.200"
+                            size="5xl"
                           />
+
                           <Text
                             color="warmGray.200"
                             textAlign="center"
                             fontFamily="Bold"
-                            fontSize="md"
+                            fontSize="xl"
                             mt="3"
+                            borderBottomWidth="1"
+                            borderBottomColor="white"
+                            mb="2"
                           >
-                            Blood Pressure
+                            Calories
+                          </Text>
+                          <Text
+                            color="blueGray.200"
+                            fontFamily="Bold"
+                            fontSize="lg"
+                          >
+                            {caloriesStats.average} kcal
                           </Text>
                           <Text
                             textAlign="center"
-                            color="warmGray.200"
+                            color="blueGray.300"
                             fontSize="md"
                             fontFamily="Medium"
                             mt="0.5"
                           >
-                            120/75
-                            <Text fontSize="sm" fontFamily="Light">
+                            {caloriesStats.min} - {caloriesStats.max}
+                            <Text fontSize="md" fontFamily="Light">
                               {" "}
-                              u
+                              kcal
                             </Text>
                           </Text>
                         </View>
                         {/* card 3 temperature */}
                         <View
-                          bg="blueGray.800"
+                          bg="blueGray.900"
                           borderRadius="md"
                           mt="2"
                           alignItems="center"
@@ -373,101 +444,77 @@ const HomeUser = ({ navigation }) => {
                             color="warmGray.200"
                             size="5xl"
                           />
+
                           <Text
                             color="warmGray.200"
                             textAlign="center"
                             fontFamily="Bold"
-                            fontSize="md"
+                            fontSize="xl"
                             mt="3"
+                            borderBottomWidth="1"
+                            borderBottomColor="white"
+                            mb="2"
                           >
                             Temperature
                           </Text>
                           <Text
+                            color="blueGray.200"
+                            fontFamily="Bold"
+                            fontSize="lg"
+                          >
+                            {temperatureStats.average} °C
+                          </Text>
+                          <Text
                             textAlign="center"
-                            color="warmGray.200"
+                            color="blueGray.300"
                             fontSize="md"
                             fontFamily="Medium"
                             mt="0.5"
                           >
-                            {userData.temperature}20
-                            <Text fontSize="sm" fontFamily="Light">
+                            {temperatureStats.min} - {temperatureStats.max}
+                            <Text fontSize="md" fontFamily="Light">
                               {" "}
                               °C
                             </Text>
                           </Text>
                         </View>
-                        {/* card 4 SpO2 */}
+                        {/* card 4 Distance */}
                         <View
-                          bg="blueGray.800"
+                          bg="blueGray.900"
                           borderRadius="md"
                           mt="2"
                           alignItems="center"
+                          justifyContent="center"
                           py="4"
                           style={{ width: "49%" }}
                         >
-                          <Image
-                            source={require("../assets/spo2.png")}
-                            style={{ width: 50, height: 50 }}
+                          <Icon
+                            as={FontAwesome6}
+                            name="person-running"
+                            color="warmGray.200"
+                            size="5xl"
                           />
+
                           <Text
                             color="warmGray.200"
                             textAlign="center"
                             fontFamily="Bold"
-                            fontSize="md"
+                            fontSize="xl"
                             mt="3"
+                            borderBottomWidth="1"
+                            borderBottomColor="white"
+                            mb="2"
                           >
-                            SpO2
+                            Distance
                           </Text>
                           <Text
-                            textAlign="center"
-                            color="warmGray.200"
-                            fontSize="md"
-                            fontFamily="Medium"
-                            mt="0.5"
+                            color="blueGray.200"
+                            fontFamily="Bold"
+                            fontSize="lg"
                           >
-                            90
-                            <Text fontSize="sm" fontFamily="Light">
-                              {" "}
-                              %
-                            </Text>
+                            {distance} Km
                           </Text>
                         </View>
-                      </View>
-
-                      {/* card 5 Stress */}
-                      <View
-                        bg="blueGray.800"
-                        borderRadius="md"
-                        mt="1"
-                        alignItems="center"
-                        alignSelf="center"
-                        py="4"
-                        style={{ width: "49%" }}
-                      >
-                        <Icon
-                          as={Fontisto}
-                          name="smiley"
-                          color="warmGray.200"
-                          size="5xl"
-                        />
-                        <Text
-                          color="warmGray.200"
-                          textAlign="center"
-                          fontFamily="Bold"
-                          fontSize="md"
-                          mt="3"
-                        >
-                          Stress
-                        </Text>
-                        <Text
-                          textAlign="center"
-                          color="warmGray.200"
-                          fontSize="md"
-                          fontFamily="Medium"
-                          mt="0.5"
-                        >
-                          Calm
-                        </Text>
                       </View>
                     </View>
                   </View>

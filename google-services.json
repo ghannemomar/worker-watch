@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "143419989146",
+    "project_id": "workerwatch-dcbb0",
+    "storage_bucket": "workerwatch-dcbb0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143419989146:android:5e75ddf67da29e14d29323",
+        "android_client_info": {
+          "package_name": "com.workerwatch.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVnmYcAn9IiXdLL8PgTDQGTtC_luNn2KQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

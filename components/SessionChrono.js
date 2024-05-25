@@ -1,28 +1,26 @@
-import { Pressable,View,Text } from "native-base";
+import { Pressable, View, Text } from "native-base";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
 import { setActifSession } from "../redux/Actions";
 import { URL } from "../utils/constants";
-;
-
-const SessionChrono = ({getSessions}) => {
+const SessionChrono = ({ getSessions }) => {
   const actifSession = useSelector((state) => state.actifSession);
   const [elapsedTime, setElapsedTime] = useState(0);
- 
-  const dispatch = useDispatch()
+
+  const dispatch = useDispatch();
 
   const stopTimer = () => {
-    axios.put(`${URL}/sessions/update-session?session=${actifSession._id}`,{
-        actif:false,
-        end_time: new Date()
-    }).then(async (res) => {+
-      getSessions()
-       dispatch(setActifSession()) 
-
-    })
-
+    axios
+      .put(`${URL}/sessions/update-session?session=${actifSession._id}`, {
+        actif: false,
+        end_time: new Date(),
+      })
+      .then(async (res) => {
+        +getSessions();
+        dispatch(setActifSession());
+      });
   };
 
   useEffect(() => {
@@ -38,10 +36,7 @@ const SessionChrono = ({getSessions}) => {
     }
 
     return () => clearInterval(timerInterval);
-  }, [actifSession]);
-
-
-  
+  }, []);
 
   const formatTime = (milliseconds) => {
     const seconds = Math.floor(milliseconds / 1000);
@@ -57,7 +52,6 @@ const SessionChrono = ({getSessions}) => {
 
   return (
     <View>
-  
       <View
         mt="2"
         flexDirection="row"
@@ -75,7 +69,7 @@ const SessionChrono = ({getSessions}) => {
             Active Session
           </Text>
           <Text fontFamily="Bold" fontSize="xl" color="blueGray.300">
-          {formatTime(elapsedTime)}
+            {formatTime(elapsedTime)}
           </Text>
         </View>
         <Pressable onPress={stopTimer}>
@@ -83,7 +77,6 @@ const SessionChrono = ({getSessions}) => {
         </Pressable>
       </View>
       {/** fall modal */}
-    
     </View>
   );
 };
